@@ -1,29 +1,36 @@
-// undefine => "값"
-// [undefine, 1] 이 생길 수도 있다고 에러 표시가 뜸 => undefine 제거 or undefine이 접근하지 못하게 제한
+//Refactoring
 
-// order를 "제한 할 수 있지 않을까?" 생각해보기
-// export function : 함수 외부에서 사용 가능
-export function simpleSort(arr: number[], order: "asc" | "desc" = "asc"): number[] {
-    const sortedArr = [...arr]; // 원본 배열을 변경하지 않도록 복사본 생성
+type SortOrder = 'asc' | 'desc'; // 정렬 방향(순서)
+type CompareFn = (a: number, b: number) => number; // 비교 함수
 
-    for (let i = 0; i < arr.length-1; i++) {
-        for (let j = 0; j < arr.length-1-i; j++) {
-            if(order === "asc") {
-                if (sortedArr[j] > sortedArr[j+1]) {
-                    const temp = sortedArr[j];
-                    sortedArr[j] = sortedArr[j+1];
-                    sortedArr[j+1] = temp;
-                }
-            } else {
-                if (sortedArr[j] < sortedArr[j+1]) {
-                    const temp = sortedArr[j];
-                    sortedArr[j] = sortedArr[j+1];
-                    sortedArr[j+1] = temp;
-                }
-            }
-        }
+//***lambda function == VALUE (Return 값이 있는 함수)***
+const createCompareFunction = (order: SortOrder): CompareFn => { // 비교 함수 생성
+  return order === 'desc'
+    ? (a: number, b: number) => b - a
+    : (a: number, b: number) => a - b;
+};
+
+export function simpleSort(arr: number[], ord: SortOrder = 'asc'): number[] {
+  if (arr.length <= 1) {
+    return [...arr];
+  }
+
+  const result = [...arr];
+  const compare = createCompareFunction(ord);
+  const n = result.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let swapped = false;
+    for (let j = 0; j < n - i - 1; j++) {
+      if (compare(result[j], result[j + 1]) > 0) {
+        [result[j], result[j + 1]] = [result[j + 1], result[j]];
+        swapped = true;
+      }
     }
-
-    return sortedArr;
+    if (!swapped) {
+      break;
+    }
+  }
+  return result;
 }
 
